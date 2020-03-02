@@ -2065,7 +2065,7 @@
  * TMCStepper library is required to use TMC stepper drivers.
  * https://github.com/teemuatlut/TMCStepper
  */
-#if HAS_TRINAMIC
+#if HAS_TRINAMIC_CONFIG
 
   //
   // CHOICE OF RSENSE AND RESULTING MAX. MOTOR CURRENT WITH GLOBALSCALER=255
@@ -2439,7 +2439,7 @@
    */
   #define TMC_ADV() {  }
 
-#endif // HAS_TRINAMIC
+#endif // HAS_TRINAMIC_CONFIG
 
 // @section L64XX
 
