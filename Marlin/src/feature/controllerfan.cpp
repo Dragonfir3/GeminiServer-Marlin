@@ -30,8 +30,13 @@
 
 ControllerFan fanController;
 
+void ControllerFan::setup() {
+  SET_OUTPUT(CONTROLLER_FAN_PIN);
+  init();
+}
+
 void ControllerFan::reset() {
-  return init();
+  init();
 }
 
 void ControllerFan::init() {

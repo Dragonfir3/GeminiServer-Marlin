@@ -40,6 +40,7 @@
       bool state();
       void reset();
       void init();
+      void setup();
       controllerFan_settings_t settings_fan;
   };
   extern ControllerFan fanController;

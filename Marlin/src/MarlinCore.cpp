@@ -977,9 +977,12 @@ void setup() {
   #endif
   #define SETUP_RUN(C) do{ SETUP_LOG(STRINGIFY(C)); C; }while(0)
 
-  // Set up LEDs early
   #if HAS_COLOR_LEDS
-    SETUP_RUN(leds.setup());
+    SETUP_RUN(leds.setup());          // Set up LEDs early
+  #endif
+
+  #if ENABLED(USE_CONTROLLER_FAN)     // Set up fan controller to initialize also the default configurations.
+    SETUP_RUN(fanController.setup());
   #endif
 
   SETUP_RUN(ui.init());
@@ -991,10 +994,6 @@ void setup() {
 
   #if ENABLED(SDSUPPORT)
     SETUP_RUN(card.mount());          // Mount the SD card before settings.first_load
-  #endif
-
-  #if ENABLED(USE_CONTROLLER_FAN)
-    SETUP_RUN(fanController.init());  // Must be initialized before EEPROM to set the default configurations.
   #endif
 
   SETUP_RUN(settings.first_load());   // Load data from EEPROM if available (or use defaults)
