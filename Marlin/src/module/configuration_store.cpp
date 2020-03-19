@@ -42,7 +42,7 @@
 
 // Check the integrity of data offsets.
 // Can be disabled for production build.
-#define DEBUG_EEPROM_READWRITE
+//#define DEBUG_EEPROM_READWRITE
 
 #include "configuration_store.h"
 
@@ -118,12 +118,13 @@
   #include "../feature/tmc_util.h"
 #endif
 
-#if ENABLED(USE_CONTROLLER_FAN)
-  #include "../feature/controllerfan.h"
-#endif
-
 #if ENABLED(PROBE_TEMP_COMPENSATION)
   #include "../feature/probe_temp_comp.h"
+#endif
+
+#include "../feature/controllerfan.h"
+#if ENABLED(CONTROLLER_FAN_EDITABLE)
+  void M710_report(const bool forReplay);
 #endif
 
 #pragma pack(push, 1) // No padding between variables
@@ -297,12 +298,9 @@ typedef struct SettingsDataStruct {
   int16_t lcd_contrast;                                 // M250 C
 
   //
-  // controller fan
+  // Controller fan settings
   //
-  #if ENABLED(USE_CONTROLLER_FAN)
-    controllerFan_settings_t fanController_settings;     // M710
-  #endif
-
+  controllerFan_settings_t controllerFan_settings;      // M710
 
   //
   // POWER_LOSS_RECOVERY
@@ -893,21 +891,17 @@ void MarlinSettings::postprocess() {
     }
 
     //
-    // controller fan
+    // Controller Fan
     //
     {
+      _FIELD_TEST(controllerFan_settings);
       #if ENABLED(USE_CONTROLLER_FAN)
-        _FIELD_TEST(fanController_settings);
-
-        #if ENABLED(USE_CONTROLLER_FAN, CONTROLLER_FAN_MENU)
-          EEPROM_WRITE(fanController.settings_fan);
-        #else
-          dummy = 0;
-          for (uint8_t q = 3; q--;) EEPROM_WRITE(dummy);
-        #endif
+        const controllerFan_settings_t &cfs = controllerFan.settings;
+      #else
+        controllerFan_settings_t cfs = controllerFan_defaults;
       #endif
+      EEPROM_WRITE(cfs);
     }
-
 
     //
     // Power-Loss Recovery
@@ -1735,7 +1729,6 @@ void MarlinSettings::postprocess() {
       }
       #endif
 
-
       //
       // LCD Contrast
       //
@@ -1753,16 +1746,13 @@ void MarlinSettings::postprocess() {
       // Controller Fan
       //
       {
-        #if ENABLED(USE_CONTROLLER_FAN)
-          _FIELD_TEST(fanController_settings);
-
-          #if ENABLED(USE_CONTROLLER_FAN, CONTROLLER_FAN_MENU)
-            EEPROM_READ(fanController.settings_fan);
-          #else
-            dummy=0;
-            for (uint8_t q=3; q--;) EEPROM_READ(dummy);
-          #endif
+        _FIELD_TEST(controllerFan_settings);
+        #if ENABLED(CONTROLLER_FAN_EDITABLE)
+          const controllerFan_settings_t &cfs = controllerFan.settings;
+        #else
+          controllerFan_settings_t cfs = { 0 };
         #endif
+        EEPROM_READ(cfs);
       }
 
       //
@@ -2639,11 +2629,9 @@ void MarlinSettings::reset() {
   //
   // Controller Fan
   //
-  {
-    #if ENABLED(USE_CONTROLLER_FAN, CONTROLLER_FAN_MENU)
-      fanController.reset();
-    #endif
-  }
+  #if ENABLED(USE_CONTROLLER_FAN)
+    controllerFan.reset();
+  #endif
 
   //
   // Power-Loss Recovery
@@ -3207,6 +3195,10 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_HEADING("LCD Contrast:");
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR("  M250 C", ui.contrast);
+    #endif
+
+    #if ENABLED(CONTROLLER_FAN_EDITABLE)
+      M710_report(forReplay);
     #endif
 
     #if ENABLED(POWER_LOSS_RECOVERY)

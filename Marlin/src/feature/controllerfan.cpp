@@ -28,80 +28,76 @@
 #include "../module/stepper/indirection.h"
 #include "../module/temperature.h"
 
-ControllerFan fanController;
+ControllerFan controllerFan;
+
+uint8_t ControllerFan::speed;
+
+#if ENABLED(CONTROLLER_FAN_EDITABLE)
+  controllerFan_settings_t ControllerFan::settings; // {0}
+#endif
 
 void ControllerFan::setup() {
   SET_OUTPUT(CONTROLLER_FAN_PIN);
   init();
 }
 
-void ControllerFan::reset() {
-  init();
-}
-
-void ControllerFan::init() {
-  settings_fan.controllerFan_Speed        = CONTROLLERFAN_SPEED;      // 0-255 - 255 == fullspeed; Controller fan speed on motors enabled
-  settings_fan.controllerFan_Idle_Speed   = CONTROLLERFAN_IDLE_SPEED; // 0-255 - 255 == fullspeed; Controller fan Idle speed if all motors are disabled
-  settings_fan.controllerFan_Duration     = CONTROLLERFAN_SECS;       // Duration in seconds for the fan to run after all motors are disabled
-  settings_fan.controllerFan_AutoMode     = true;
-}
-
-bool ControllerFan::state() {
-  return iFanSpeed > 0;
+void ControllerFan::set_fan_speed(const uint8_t s) {
+  speed = s < (CONTROLLERFAN_SPEED_MIN) ? 0 : s; // Fan OFF below minimum
 }
 
 void ControllerFan::update() {
-  static millis_t lastMotorOn = 0, // Last time a motor was turned on
+  static millis_t lastMotorOn = 0,    // Last time a motor was turned on
                   nextMotorCheck = 0; // Last time the state was checked
   const millis_t ms = millis();
   if (ELAPSED(ms, nextMotorCheck)) {
     nextMotorCheck = ms + 2500UL; // Not a time critical function, so only check every 2.5s
 
-    const bool xory = X_ENABLE_READ() == bool(X_ENABLE_ON) || Y_ENABLE_READ() == bool(Y_ENABLE_ON);
+    #define MOTOR_IS_ON(A,B) (A##_ENABLE_READ() == bool(B##_ENABLE_ON))
+    #define _OR_ENABLED_E(N) || MOTOR_IS_ON(E##N,E)
 
-    // If any of the drivers or the bed are enabled...
-    if (xory || Z_ENABLE_READ() == bool(Z_ENABLE_ON)
+    const bool motor_on = MOTOR_IS_ON(Z,Z)
+      #if HAS_Z2_ENABLE
+        || MOTOR_IS_ON(Z2,Z)
+      #endif
+      #if HAS_Z3_ENABLE
+        || MOTOR_IS_ON(Z3,Z)
+      #endif
+      #if HAS_Z4_ENABLE
+        || MOTOR_IS_ON(Z4,Z)
+      #endif
+      || (DISABLED(CONTROLLER_FAN_USE_Z_ONLY) && (
+          MOTOR_IS_ON(X,X) || MOTOR_IS_ON(Y,Y)
+          #if HAS_X2_ENABLE
+            || MOTOR_IS_ON(X2,X)
+          #endif
+          #if HAS_Y2_ENABLE
+            || MOTOR_IS_ON(Y2,Y)
+          #endif
+          #if E_STEPPERS
+            REPEAT(E_STEPPERS, _OR_ENABLED_E)
+          #endif
+        )
+      )
+    ;
+
+    // If any of the drivers or the heated bed are enabled...
+    if (motor_on
       #if HAS_HEATED_BED
         || thermalManager.temp_bed.soft_pwm_amount > 0
       #endif
-      #if HAS_X2_ENABLE
-        || X2_ENABLE_READ() == bool(X_ENABLE_ON)
-      #endif
-      #if HAS_Y2_ENABLE
-        || Y2_ENABLE_READ() == bool(Y_ENABLE_ON)
-      #endif
-      #if HAS_Z2_ENABLE
-        || Z2_ENABLE_READ() == bool(Z_ENABLE_ON)
-      #endif
-      #if HAS_Z3_ENABLE
-        || Z3_ENABLE_READ() == bool(Z_ENABLE_ON)
-      #endif
-      #if HAS_Z4_ENABLE
-        || Z4_ENABLE_READ() == bool(Z_ENABLE_ON)
-      #endif
-      #if E_STEPPERS
-        #define _OR_ENABLED_E(N) || E##N##_ENABLE_READ() == bool(E_ENABLE_ON)
-        REPEAT(E_STEPPERS, _OR_ENABLED_E)
-      #endif
-    ) {
-      lastMotorOn = ms; //... set time to NOW so the fan will turn on
-    }
+    ) lastMotorOn = ms; //... set time to NOW so the fan will turn on
 
-    // Fan Settings - Set fan > 0:
-    //        - If AutoMode in on and steppers has been enabled for CONTROLLERFAN_SECS seconds.
-    //        - If System is on idle and idle fan speed settings is activated
-    if( settings_fan.controllerFan_AutoMode && lastMotorOn && 
-        PENDING(ms, lastMotorOn + (settings_fan.controllerFan_Duration) * 1000UL) && 
-        settings_fan.controllerFan_Speed  >= CONTROLLERFAN_SPEED_MIN ) {
-      iFanSpeed= settings_fan.controllerFan_Speed;
-    }
-    else if( settings_fan.controllerFan_Idle_Speed  >= CONTROLLERFAN_SPEED_MIN ) {
-      iFanSpeed= settings_fan.controllerFan_Idle_Speed;
-    } else iFanSpeed= 0; // Fan OFF
+    // Fan Settings. Set fan > 0:
+    //  - If AutoMode is on and steppers have been enabled for CONTROLLERFAN_IDLE_TIME seconds.
+    //  - If System is on idle and idle fan speed settings is activated.
+    set_fan_speed(
+      settings.auto_mode && lastMotorOn && PENDING(ms, lastMotorOn + settings.duration * 1000UL)
+      ? settings.active_speed : settings.idle_speed
+    );
 
-    // allows digital or PWM fan output to be used (see M42 handling)
-    WRITE(CONTROLLER_FAN_PIN, iFanSpeed );
-    analogWrite(pin_t(CONTROLLER_FAN_PIN), iFanSpeed );
+    // Allow digital or PWM fan output (see M42 handling)
+    WRITE(CONTROLLER_FAN_PIN, speed);
+    analogWrite(pin_t(CONTROLLER_FAN_PIN), speed);
   }
 }
 

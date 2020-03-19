@@ -338,34 +338,43 @@
  * Controller Fan
  * To cool down the stepper drivers and MOSFETs.
  *
- * The fan will turn on automatically whenever any stepper is enabled
- * and turn off after a set period after all steppers are turned off.
+ * The fan turns on automatically whenever any driver is enabled and turns
+ * off (or reduces to idle speed) shortly after drivers are turned off.
  *
- * Gcodes: M710 ; Return current Settings
- * M710 I127 A1 S255 D160 ; Set controller Fan idle Speed 50% (I127), AutoMode On (A1), Fan speed 100% (S100), Duration to 160 Secs (D160)
  */
 #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9,ANYCUBIC_4MAX_SKR_1_4_PRO)
   #define USE_CONTROLLER_FAN
-  #if ENABLED(USE_CONTROLLER_FAN)
-    #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
-      #define CONTROLLER_FAN_PIN          7    // Set a custom pin for the controller fan
-    #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
-      #define CONTROLLER_FAN_PIN       P1_00 // PWRDET - PS_ON_PIN
-    #else 
-    #endif
-    #define CONTROLLERFAN_SPEED_MIN    20    // Default 0;    Range 1-255; 255 is fullspeed; Min. Fan PWM value
-    #define CONTROLLERFAN_SECS         30    // Default 60;   Duration in seconds for the fan to run after all motors are disabled
-    #define CONTROLLERFAN_SPEED        255   // Default 255;  Range 0-255; 255 is fullspeed; Controller fan speed is on, if either stepper/motor is enabled
-    #define CONTROLLERFAN_IDLE_SPEED   21    // Default 100;  Range 0-255; 255 is fullspeed; Controller fan idle speed, when all motors are disabled
-    #define CONTROLLER_FAN_MENU              // Enables controller FAN in Settings menu and EEPROM save/restore options
+#endif
+#if ENABLED(USE_CONTROLLER_FAN)
+  #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
+    #define CONTROLLER_FAN_PIN          7    // Set a custom pin for the controller fan
+  #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
+    #define CONTROLLER_FAN_PIN       P1_00 // PWRDET - PS_ON_PIN
   #else
-    #define CONTROLLERFAN_SPEED_MIN    0     // Default 0;    Range 1-255; 255 is fullspeed; Min. Fan PWM value
-    #define CONTROLLERFAN_SECS         60    // Default 60;   Duration in seconds for the fan to run after all motors are disabled
-    #define CONTROLLERFAN_SPEED        255   // Default 255;  Range 0-255; 255 is fullspeed; Controller fan speed is on, if either stepper/motor is enabled
-    #define CONTROLLERFAN_IDLE_SPEED   100   // Default 100;  Range 0-255; 255 is fullspeed; Controller fan idle speed, when all motors are disabled
-    #define CONTROLLER_FAN_MENU              // Enables controller FAN in Settings menu and EEPROM save/restore options
+    //#define CONTROLLER_FAN_PIN -1        // Set a custom pin for the controller fan
+  #endif
+
+  //#define CONTROLLER_FAN_USE_Z_ONLY    // With this option only the Z axis is considered
+  #define CONTROLLERFAN_SPEED_MIN      0 // (0-255) Minimum speed. (If set below this value the fan is turned off.)
+  #define CONTROLLERFAN_SPEED_ACTIVE 255 // (0-255) Active speed, used when any motor is enabled
+  #define CONTROLLERFAN_SPEED_IDLE     0 // (0-255) Idle speed, used when motors are disabled
+  #define CONTROLLERFAN_IDLE_TIME     21 // (seconds) Extra time to keep the fan running after disabling motors
+  #define CONTROLLER_FAN_EDITABLE      // Enable M710 configurable settings
+  #if ENABLED(CONTROLLER_FAN_EDITABLE)
+    #define CONTROLLER_FAN_MENU          // Enable the Controller Fan submenu
+  #endif
+#else
+  //#define CONTROLLER_FAN_USE_Z_ONLY    // With this option only the Z axis is considered
+  #define CONTROLLERFAN_SPEED_MIN      0 // (0-255) Minimum speed. (If set below this value the fan is turned off.)
+  #define CONTROLLERFAN_SPEED_ACTIVE 255 // (0-255) Active speed, used when any motor is enabled
+  #define CONTROLLERFAN_SPEED_IDLE     0 // (0-255) Idle speed, used when motors are disabled
+  #define CONTROLLERFAN_IDLE_TIME     60 // (seconds) Extra time to keep the fan running after disabling motors
+  //#define CONTROLLER_FAN_EDITABLE      // Enable M710 configurable settings
+  #if ENABLED(CONTROLLER_FAN_EDITABLE)
+    #define CONTROLLER_FAN_MENU          // Enable the Controller Fan submenu
   #endif
 #endif
+
 // When first starting the main fan, run it at full speed for the
 // given number of milliseconds.  This gets the fan spinning reliably
 // before setting a PWM value. (Does not work with software PWM for fan on Sanguinololu)
