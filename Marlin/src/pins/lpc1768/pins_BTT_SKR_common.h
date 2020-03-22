@@ -84,7 +84,6 @@
 #endif
 #ifndef FAN_PIN
   #define FAN_PIN                          P2_03
->>>>>>> upstream/bugfix-2.0.x
 #endif
 #ifndef HEATER_BED_PIN
   #define HEATER_BED_PIN                   P2_05
