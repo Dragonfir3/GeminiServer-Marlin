@@ -442,7 +442,7 @@
 #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
   #define E0_AUTO_FAN_PIN 44
 #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
-  #define E0_AUTO_FAN_PIN FAN1_PIN  
+  #define E0_AUTO_FAN_PIN FAN1_PIN
 #else
   #define E0_AUTO_FAN_PIN -1
 #endif
@@ -480,13 +480,13 @@
 #endif
 
 #if ENABLED(CASE_LIGHT_ENABLE)
-  #define CASE_LIGHT_PIN                NEOPIXEL_PIN   // Override the default pin if needed 
+  #define CASE_LIGHT_PIN                NEOPIXEL_PIN   // Override the default pin if needed
   #define INVERT_CASE_LIGHT             false   // Set true if Case Light is ON when pin is LOW
   #define CASE_LIGHT_DEFAULT_ON         true    // Set default power-up state on
   #define CASE_LIGHT_DEFAULT_BRIGHTNESS 255     // Set default power-up brightness (0-255, requires PWM pin)
   //#define CASE_LIGHT_MAX_PWM          128     // Limit pwm
   #define CASE_LIGHT_MENU                       // Add Case Light options to the LCD menu
-  //#define CASE_LIGHT_NO_BRIGHTNESS            // Disable brightness control. Enable for non-PWM lighting. 
+  //#define CASE_LIGHT_NO_BRIGHTNESS            // Disable brightness control. Enable for non-PWM lighting.
 
   #define CASE_LIGHT_USE_NEOPIXEL               // Use Neopixel LED as case light, requires NEOPIXEL_LED.
   #if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
@@ -1111,7 +1111,7 @@
    #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
     #define POWER_LOSS_RECOVERY
     #ifndef POWER_LOSS_PIN
-      #define POWER_LOSS_PIN  -1 // Not using this Pin! 
+      #define POWER_LOSS_PIN  -1 // Not using this Pin!
     #endif
    #else // ANYCUBIC_4MAX_DEFAULT
     //#define POWER_LOSS_RECOVERY
@@ -1606,11 +1606,27 @@
  * probe points will follow. This prevents any change from causing
  * the probe to be unable to reach any points.
  */
+
+/**
+ *  ____________________________
+ * |          Back            |
+ * |      ______________      |
+ * |      |            |      |
+ * |      |  Printing- |      |
+ * | Left |  Area      | Right|
+ * |      |            |      |
+ * |      |____________|      |
+ * |          Front           |
+ * |__________________________|
+ *
+ * Set the boundaries for probing (where the probe can reach).
+ */
+
 #if PROBE_SELECTED && !IS_KINEMATIC
-  //#define MIN_PROBE_EDGE_LEFT MIN_PROBE_EDGE
-  //#define MIN_PROBE_EDGE_RIGHT MIN_PROBE_EDGE
-  //#define MIN_PROBE_EDGE_FRONT MIN_PROBE_EDGE
-  //#define MIN_PROBE_EDGE_BACK MIN_PROBE_EDGE
+  #define MIN_PROBE_EDGE_LEFT   MIN_PROBE_EDGE
+  #define MIN_PROBE_EDGE_RIGHT  MIN_PROBE_EDGE
+  #define MIN_PROBE_EDGE_FRONT  MIN_PROBE_EDGE
+  #define MIN_PROBE_EDGE_BACK   MIN_PROBE_EDGE
 #endif
 
 #if EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
@@ -2112,7 +2128,7 @@
   //
   #if ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
     #define RSENSE      0.075f
-  #else 
+  #else
     #define RSENSE      0.11f
   #endif
   #define HOLD_MULTIPLIER     0.5   // Scales down the holding current from run current
@@ -2434,7 +2450,7 @@
   #else
     //#define SQUARE_WAVE_STEPPING
 #endif
-  
+
   /**
    * Enable M122 debugging command for TMC stepper drivers.
    * M122 S0/1 will enable continous reporting.
