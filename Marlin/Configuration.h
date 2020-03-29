@@ -132,12 +132,12 @@
   #error "### ERROR: No MOTHERBOARD defined! Please check platformio.ini (default_envs!) ###"
 #else
   //
-  // Define in platformio.ini your custom 4MAX. Just comment out what device you want to build! 
+  // Define in platformio.ini your custom 4MAX. Just comment out what device you want to build!
   //
   #if (MOTHERBOARD == BOARD_TRIGORILLA_14)
     #define ANYCUBIC_4MAX
   #elif (MOTHERBOARD == BOARD_BTT_SKR_V1_4_TURBO)
-    // ANYCUBIC_4MAX_SKR_1_4_PRO specific setting can be set here! 
+    // ANYCUBIC_4MAX_SKR_1_4_PRO specific setting can be set here!
   #else
     #error "### ERROR: No Supported MOTHERBOARD defined! Please check platformio.ini ###"
   #endif
@@ -204,7 +204,7 @@
 #endif
 
 /**
- * Website where users can find Marlin source code for the binary installed on the device. 
+ * Website where users can find Marlin source code for the binary installed on the device.
  */
 #ifndef SOURCE_CODE_URL
   #define SOURCE_CODE_URL "https://github.com/GeminiServer/Marlin"
@@ -566,7 +566,8 @@
 #if ENABLED(PIDTEMP)
   #define PID_EDIT_MENU         // Add PID editing to the "Advanced Settings" menu. (~700 bytes of PROGMEM)
   #define PID_AUTOTUNE_MENU     // Add PID auto-tuning to the "Advanced Settings" menu. (~250 bytes of PROGMEM)
-  //#define PID_DEBUG             // Sends debug data to the serial port.
+  //#define PID_DEBUG             // Sends debug data to the serial port. Use 'M303 D' to toggle activation.
+
   //#define PID_OPENLOOP 1        // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
   //#define SLOW_PWM_HEATERS      // PWM with very low frequency (roughly 0.125Hz=8s) and minimum state time of approximately 1s useful for heaters driven by a relay
   //#define PID_PARAMS_PER_HOTEND // Uses separate PID parameters for each extruder (useful for mismatched extruders)
@@ -799,13 +800,13 @@
 #elif ENABLED(ANYCUBIC_4MAX_SKR_1_4_PRO)
   // Using ZMAX! Undef some pins which is using the P1_27 for ZMAX!
   #define USE_ZMAX_PLUG
-  #ifdef  Z_MAX_PIN 
+  #ifdef  Z_MAX_PIN
     #undef  Z_MAX_PIN
   #endif
   #define Z_MAX_PIN P1_27
 
   // Don't have a second Filament runout!
-  #ifdef FIL_RUNOUT2_PIN    
+  #ifdef FIL_RUNOUT2_PIN
     #undef FIL_RUNOUT2_PIN
   #endif
 
@@ -1565,23 +1566,6 @@
   // Set the number of grid points per dimension.
   #define GRID_MAX_POINTS_X 10
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
-
-//
-// ____________________________
-// |          Back            |
-// |      ______________      |
-// |      |            |      |
-// |      |  Printing- |      |
-// | Left |  Area      | Right|
-// |      |            |      |
-// |      |____________|      |
-// |          Front           |
-// |__________________________|
-// Set the boundaries for probing (where the probe can reach).
-  #define MIN_PROBE_EDGE_LEFT   MIN_PROBE_EDGE
-  #define MIN_PROBE_EDGE_RIGHT  MIN_PROBE_EDGE
-  #define MIN_PROBE_EDGE_FRONT  MIN_PROBE_EDGE
-  #define MIN_PROBE_EDGE_BACK   MIN_PROBE_EDGE
 
   // Probe along the Y axis, advancing X after each column
   //#define PROBE_Y_FIRST
@@ -2553,7 +2537,7 @@
 #if ENABLED(NEOPIXEL_LED)
   #define NEOPIXEL_TYPE   NEO_GRB                     // First neopixel type - NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
   //#define NEOPIXEL2_TYPE  NEO_GRB                     // Optional - Second neopixel type - NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
-  
+
   #if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9)
     #define NEOPIXEL_PIN    SERVO3_PIN                // LED driving pin
     //#define NEOPIXEL2_PIN     -1                    // Second neopixel not using
@@ -2564,13 +2548,13 @@
     //#define NEOPIXEL_PIN      -1                    // Define first neopixel pin!
     //#define NEOPIXEL2_PIN     -1                    // Optional - define second neopixel pin.
   #endif
-  
+
   #define NEOPIXEL_PIXELS         39                  // Number of LEDs in the strip
   #define NEOPIXEL2_PIXELS         8                  // Number of LEDs in the strip
-  
+
   #define NEOPIXEL_IS_SEQUENTIAL                      // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
   #define NEOPIXEL_BRIGHTNESS     255                 // Initial brightness (0-255)
-  
+
   //#define NEOPIXEL_STARTUP_TEST                     // Cycle through colors at startup
   #define NEOPIXEL_TEST_PIXEL                         // Enable NEOPIXEL test menu
   #if ENABLED(NEOPIXEL_TEST_PIXEL)
@@ -2585,7 +2569,7 @@
   // Use a single Neopixel LED for static (background) lighting
   //#define NEOPIXEL_BKGD_LED_INDEX  0               // Index of the LED to use
   //#define NEOPIXEL_BKGD_COLOR { 255, 255, 255, 0 } // R, G, B, W
-  
+
 #endif
 
 /**
