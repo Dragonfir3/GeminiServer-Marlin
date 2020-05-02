@@ -660,7 +660,11 @@
  * heater. If your configuration is significantly different than this and you don't understand
  * the issues involved, don't use bed PID until someone else verifies that your hardware works.
  */
+#if ENABLED(ANYCUBIC_4MAX_DEFAULT)
+//#define PIDTEMPBED
+#else
 #define PIDTEMPBED
+#endif
 
 //#define BED_LIMIT_SWITCHING
 
@@ -1939,7 +1943,11 @@
  *
  * View the current statistics with M78.
  */
+#if EITHER(ANYCUBIC_4MAX_VG3R, ANYCUBIC_4MAX_7OF9,ANYCUBIC_4MAX_SKR_1_4_PRO)
+#define PRINTCOUNTER
+#else
 //#define PRINTCOUNTER
+#endif
 
 //=============================================================================
 //============================= LCD and SD support ============================
