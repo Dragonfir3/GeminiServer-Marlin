@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && EITHER(LED_CONTROL_MENU, CASE_LIGHT_MENU)
+#if BOTH(HAS_LCD_MENU, LED_CONTROL_MENU)
 
 #include "menu.h"
 #if ENABLED(LED_CONTROL_MENU)
@@ -106,7 +106,7 @@ void menu_led() {
 
   #if ENABLED(LED_CONTROL_MENU)
     if(led_on) {
-      #if ENABLED(NEOPIXEL_LED) 
+      #if ENABLED(NEOPIXEL_LED)
         #if !(ENABLED(CASE_LIGHT_MENU) && DISABLED(CASE_LIGHT_NO_BRIGHTNESS))
           EDIT_ITEM_FAST(percent, MSG_LED_BRIGHTNESS,  &leds.color.i, 0, 255, leds.update, true);
         #endif
